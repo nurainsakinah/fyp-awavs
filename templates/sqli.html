@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQLi</title>
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icon.png') }}">
+  
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+
+    header {
+      background-color: #ffffff;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #333;
+      margin: 0;
+    }
+
+    nav {
+      background-color: #333;
+      color: #fff;
+      padding: 15px;
+      text-align: center;
+    }
+
+    nav ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: space-around;
+    }
+
+    nav ul li {
+      display: inline;
+    }
+
+    nav ul li a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    nav ul li a:hover {
+      text-decoration: overline underline;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      background-color: #ffffff;
+      padding: 20px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    img {
+      max-width: 50px;
+      height: 10px;
+      margin-top: 20px;
+      align-items: center;
+    }
+
+    h2, p {
+      color: #333;
+    }
+  </style>
+
+</head>
+<body>
+
+  <header>
+    <h1>SQL Injection</h1>
+  </header>
+
+  <nav>
+    <ul>
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('csrf') }}">CSRF</a></li>
+        <li><a href="{{ url_for('xss') }}">XSS</a></li>
+        <li><a href="{{ url_for('sqli') }}">SQLi</a></li>
+        </ul>
+  </nav>
+
+  <div class="container">
+
+    <img src="{{ url_for('static', filename='sqli.png') }}" alt="SQL Injection Image">
+
+    <h2>Is SQL Injection Safe?</h2>
+
+    <p>No, SQL injection is not safe. It poses a serious threat to the security of web applications and databases. Attackers can exploit SQL injection vulnerabilities to gain unauthorized access to sensitive information, modify database records, and even execute arbitrary commands on the server.</p>
+
+    <h2>Why is it Important to Address SQL Injection?</h2>
+
+    <p>Addressing SQL injection is crucial for maintaining the security and integrity of your web applications and databases. Failure to prevent SQL injection can result in data breaches, loss of sensitive information, legal consequences, and damage to the reputation of your organization.</p>
+
+    <h2>Protecting Against SQL Injection</h2>
+
+    <p>To safeguard your applications against SQL injection, consider the following best practices:</p>
+
+    <ul>
+      <li><strong>Use Parameterized Statements:</strong> Use parameterized queries or prepared statements to ensure that user input is treated as data, not executable code.</li>
+      <li><strong>Input Validation:</strong> Validate and sanitize user input to prevent malicious data from being entered.</li>
+      <li><strong>Least Privilege Principle:</strong> Assign the minimum necessary permissions to database users and avoid using overly permissive accounts.</li>
+      <li><strong>Regular Audits:</strong> Regularly audit your code and conduct security assessments to identify and address potential vulnerabilities.</li>
+    </ul>
+
+    <p>By implementing these practices, you can significantly reduce the risk of SQL injection attacks and enhance the overall security of your web applications.</p>
+
+  </div>
+
+</body>
+</html>

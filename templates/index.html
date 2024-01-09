@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AWAVS</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icon.png') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        header {
+            background-color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            background-color: #333;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        nav ul li {
+            display: inline;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        nav ul li a:hover {
+            text-decoration: overline underline;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        form, .summary, .plots, .previousScans {
+            background-color: #fff;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary {
+            margin-top: 20px;
+        }
+
+        .summary-heading {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .summary-cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .summary-card {
+            width: 30%;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: center; /* Center the content */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .summary-card h2 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .summary-card p {
+            color: #555;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        form input[type="text"], form input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+
+        form input[type="submit"] {
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        form input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        form input[type="submit"]:hover {
+            background-color: #444;
+        }
+
+        .summary p, .previousScans ul {
+            margin: 0 0 10px;
+            line-height: 1.6;
+        }
+
+        .previousScans ul {
+            padding-left: 20px;
+        }
+
+        h1{
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        h2 {
+            margin: 10px;  /* Add margin for spacing between headers and charts */
+            text-align: center;
+        }
+
+        .plots {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .chart {
+            flex: 1;
+            margin: 10px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .chart {
+                flex: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Automated Web Application Vulnerability Scanner</h1>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('csrf') }}">CSRF</a></li>
+            <li><a href="{{ url_for('xss') }}">XSS</a></li>
+            <li><a href="{{ url_for('sqli') }}">SQLi</a></li>
+            </ul>
+    </nav>
+        
+    <div class="container">
+        
+        <form action="{{ url_for('scan') }}" method="post">
+            <label for="url">URL:</label><br>
+            <input placeholder="Search a Target URL" type="text" id="url" name="url"><br>
+
+            <label for="category">Category:</label><br>
+            <input type="radio" id="Ecommerce" name="category" value="Ecommerce">
+            <label for="ecommerce">Ecommerce</label><br>
+            <input type="radio" id="Education" name="category" value="Education">
+            <label for="education">Education</label><br>
+            <input type="radio" id="Social Media" name="category" value="Social Media">
+            <label for="socmed">Social Media</label><br>
+            <input type="radio" id="Others" name="category" value="Others">
+            <label for="others">Others</label><br>
+
+            <input type="submit" value="Scan">
+        </form>
+
+        <div class="summary">
+            <div class="summary-heading">
+                <h2>Summary of Vulnerabilities</h2>
+            </div>
+        
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h2>XSS Total</h2>
+                    <p>{{ total_xss }}</p>
+                </div>
+                
+                <div class="summary-card">
+                    <h2>CSRF Total</h2>
+                    <p>{{ total_csrf }}</p>
+                </div>
+                
+                <div class="summary-card">
+                    <h2>SQLi Total</h2>
+                    <p>{{ total_sqli }}</p>
+                </div>
+                
+                <div class="summary-card">
+                    <h2>Sum of Vulnerabilities</h2>
+                    <p>{{ total_all }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="plots">
+            
+            <div class="chart">
+                <h2>Percentage of Vulnerabilities Blacklisted</h2>
+                <center><img src="data:image/png;base64,{{ vulnerability_chart_data }}" alt="Vulnerability Distribution"></center>
+            </div>
+
+           
+           <div class="chart">
+            <h2>Percentage of Category Blacklisted</h2> 
+                <center><img src="data:image/png;base64,{{ category_chart_data }}" alt="Category Distribution"></center>
+            </div>
+        </div>
+
+        <div class="previousScans">
+            <h2>URL Summary</h2>
+            <h3>Blacklist</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>URL</th>
+                            <th>Category</th>
+                        </tr>
+                    </thead>
+                <tbody>
+                    {% for entry in top_blacklist_entries %}
+                        <tr>
+                            <td>{{ entry.url }}</td>
+                            <td>{{ entry.category }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <h3>Whitelist</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>URL</th>
+                        <th>Category</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in top_whitelist_entries %}
+                        <tr>
+                            <td>{{ entry.url }}</td>
+                            <td>{{ entry.category }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Scan Results</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icon.png') }}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        header {
+          background-color: #ffffff;
+          padding: 20px;
+          text-align: center;
+          box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            background-color: #333;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        nav ul li {
+            display: inline;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        nav ul li a:hover {
+            text-decoration: overline underline;
+        }
+
+        main {
+            max-width: 100%;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        p {
+            color: #555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .card-deck {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            color: #333;
+        }
+
+        .card-text {
+            color: #555;
+        }
+
+        img {
+          max-width: 100%;
+          height: auto;
+          margin-top: 20px;
+          align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Automated Web Application Vulnerability Scanner</h1>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('csrf') }}">CSRF</a></li>
+            <li><a href="{{ url_for('xss') }}">XSS</a></li>
+            <li><a href="{{ url_for('sqli') }}">SQLi</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <div class="col-md-12">
+            <p>Scanned URL: {{ url }}</p>
+            <p>Category: {{ category }}</p>
+            <p>Status: {{ summary.status }}</p>
+
+            <!-- Display the message only if it is not empty -->
+            {% if message %}
+                <p>{{ message }}</p>
+            {% endif %}
+
+            <!-- Display the image based on the status -->
+            {% if summary.status == 'Whitelisted' %}
+                <center><img src="{{ url_for('static', filename='safe.png') }}" alt="Safe"></center>
+            {% else %}
+                <center><img src="{{ url_for('static', filename='unsafe.png') }}" alt="Unsafe"></center>
+            {% endif %}
+    
+            {% if summary.status != 'Whitelisted' %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Link</th>
+                            <th>XSS Result</th>
+                            <th>CSRF Result</th>
+                            <th>SQLI Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in results %}
+                            <tr>
+                                <td>{{ result.link }}</td>
+                                <td>{{ result.xss_result }}</td>
+                                <td>{{ result.csrf_result }}</td>
+                                <td>{{ result.sqli_result }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+    
+                <div class="card-deck">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">XSS Found</h5>
+                            <p class="card-text">Total: {{ summary.count_xss }}</p>
+                        </div>
+                    </div>
+    
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">CSRF Found</h5>
+                            <p class="card-text">Total: {{ summary.count_csrf }}</p>
+                        </div>
+                    </div>
+    
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">SQLI Found</h5>
+                            <p class="card-text">Total: {{ summary.count_sqli }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+            <br><br>
+                <p>No vulnerabilities found.</p>
+            {% endif %}
+        </div>
+    </main>       
+</body>
+</html>

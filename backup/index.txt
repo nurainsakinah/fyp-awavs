@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWAVS</title>
+</head>
+<body>
+    <h1>Automated Web Application Vulnerability Scanner</h1>
+    <form action="{{ url_for('scan') }}" method="post">
+        <label for="url">Enter Target URL:</label>
+        <input type="text" id="url" name="url" required>
+
+        <label for="category">Select Category:</label>
+        <div>
+            <input type="radio" id="ecommerce" name="category" value="ecommerce">
+            <label for="ecommerce">eCommerce</label>
+        </div>
+        <div>
+            <input type="radio" id="social_media" name="category" value="social_media">
+            <label for="social_media">Social Media</label>
+        </div>
+        <div>
+            <input type="radio" id="education" name="category" value="education">
+            <label for="education">Education</label>
+        </div>
+        <div>
+            <input type="radio" id="others" name="category" value="others">
+            <label for="others">Others</label>
+        </div>
+
+        <button type="submit">Scan</button>
+    </form>
+</body>
+</html>
+

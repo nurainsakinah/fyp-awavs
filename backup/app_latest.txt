@@ -1,0 +1,188 @@
+from flask import Flask, render_template, request
+import matplotlib
+import scanner
+import sqli_scanner
+import csrf_scanner
+import xss_scanner
+from colorama import init
+from flask_sqlalchemy import SQLAlchemy
+from flask import json
+matplotlib.use('Agg')  # Use Agg backend to avoid Tkinter-related issues
+import matplotlib.pyplot as plt
+
+init(autoreset=True)
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///status_url.db'
+db = SQLAlchemy(app)
+
+class blacklist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String(255))
+    category = db.Column(db.String(255))
+    link = db.Column(db.String(255))
+    xss_result = db.Column(db.Boolean)  
+    csrf_result = db.Column(db.Boolean)
+    sqli_result = db.Column(db.Boolean)
+    total_xss_count=db.Column(db.Integer)
+    total_csrf_count=db.Column(db.Integer)
+    total_sqli_count=db.Column(db.Integer)
+
+class whitelist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String(255))
+    category = db.Column(db.String(255))
+    summary = db.Column(db.Text)
+
+def add_to_blacklist(url, category, link, xss_result, csrf_result, sqli_result, total_xss_count, total_csrf_count, total_sqli_count):
+    blacklist_entry = blacklist(
+        url=url,
+        category=category,
+        link=link,
+        xss_result=xss_result,
+        csrf_result=csrf_result,
+        sqli_result=sqli_result,
+        total_xss_count=total_xss_count,
+        total_csrf_count=total_csrf_count,
+        total_sqli_count=total_sqli_count
+    )
+    db.session.add(blacklist_entry)
+    db.session.commit()
+
+def add_to_whitelist(url, category, summary):
+    summary_str = json.dumps(list(summary))
+    whitelist_entry = whitelist(
+        url=url,
+        category=category,
+        summary=summary_str
+    )
+    db.session.add(whitelist_entry)
+    db.session.commit()
+
+def get_totals():
+    total_xss = blacklist.query.with_entities(db.func.sum(blacklist.total_xss_count)).scalar() or 0
+    total_csrf = blacklist.query.with_entities(db.func.sum(blacklist.total_csrf_count)).scalar() or 0
+    total_sqli = blacklist.query.with_entities(db.func.sum(blacklist.total_sqli_count)).scalar() or 0
+
+    total_all = total_xss + total_csrf + total_sqli
+
+    return total_xss, total_csrf, total_sqli, total_all
+
+import io
+import base64
+import threading
+from queue import Queue
+
+def create_vulnerability_pie_chart(total_xss, total_csrf, total_sqli, result_queue):
+    # Create a pie chart
+    labels = ['XSS', 'CSRF', 'SQLi']
+    counts = [total_xss, total_csrf, total_sqli]
+
+    plt.figure(figsize=(6, 6))
+    plt.pie(counts, labels=labels, autopct='%1.1f%%', startangle=140)
+    plt.axis('equal')
+    plt.title('Vulnerability Distribution')
+
+    # Save the chart to a BytesIO object
+    image_stream = io.BytesIO()
+    plt.savefig(image_stream, format='png')
+    image_stream.seek(0)
+
+    # Convert the image to a base64-encoded string
+    base64_image = base64.b64encode(image_stream.read()).decode('utf-8')
+
+    # Close the plot to free up resources
+    plt.close()
+
+    # Put the result in the queue
+    result_queue.put(base64_image)
+
+@app.route('/')
+def index():
+    total_xss, total_csrf, total_sqli, total_all = get_totals()
+
+    return render_template('index.html', total_xss=total_xss, total_csrf=total_csrf, total_sqli=total_sqli, total_all=total_all)
+
+
+@app.route('/scan', methods=['POST'])
+def scan():
+    target_url = request.form['url'].strip()
+    if not target_url.endswith('/'):
+        target_url += '/'
+    category = request.form['category'].strip()
+
+    scan = scanner.Scanner(target_url)
+
+    scan.crawl()
+
+    scan_xss = xss_scanner.xss_scanner(scan.session)
+    scan_csrf = csrf_scanner.csrf_scanner(scan.session)
+    scan_sqli = sqli_scanner.sqli_scanner(scan.session)
+
+    results = []
+
+    total_xss_count = 0
+    total_csrf_count = 0
+    total_sqli_count = 0
+
+    for link in scan.target_links:
+        result = {}
+        result['link'] = link
+        result['xss_result'] = scan_xss.run_xss_test(link)
+        result['csrf_result'] = scan_csrf.run_csrf_test(link)
+        result['sqli_result'] = scan_sqli.run_sqli_test(link)
+
+        total_xss_count += result['xss_result']
+        total_csrf_count += result['csrf_result']
+        total_sqli_count += result['sqli_result']
+
+        results.append(result)
+
+        total_xss_count = max(total_xss_count, 0)
+        total_csrf_count = max(total_csrf_count, 0)
+        total_sqli_count = max(total_sqli_count, 0) 
+
+    if  total_xss_count == 0 and total_csrf_count == 0 and total_sqli_count == 0:
+        summary = {'status': 'Whitelisted',
+                   'count_xss': total_xss_count,
+                   'count_csrf': total_csrf_count,
+                   'count_sqli': total_sqli_count}
+        add_to_whitelist(url=target_url, category=category, summary=summary)
+    else:
+        summary = {'status': 'Blacklisted',
+                   'count_xss': total_xss_count,
+                   'count_csrf': total_csrf_count,
+                   'count_sqli': total_sqli_count}
+        add_to_blacklist(
+            url=target_url,
+            category=category,
+            link=link,
+            xss_result=bool(result['xss_result']),
+            csrf_result=bool(result['csrf_result']),
+            sqli_result=bool(result['sqli_result']),
+            total_xss_count=total_xss_count,
+            total_csrf_count=total_csrf_count,
+            total_sqli_count=total_sqli_count,
+        )
+
+    return render_template('result.html', url=target_url, category=category, results=results, summary=summary)
+
+@app.route('/csrf')
+def csrf():
+    # Your CSRF view logic goes here
+    return render_template('csrf.html')
+
+@app.route('/xss')
+def xss():
+    # Your XSS view logic goes here
+    return render_template('xss.html')
+
+@app.route('/sqli')
+def sqli():
+    # Your SQLi view logic goes here
+    return render_template('sqli.html')
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>Cross-Site Scripting (XSS)</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icon.png') }}">
+  
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+    
+        header {
+            background-color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    
+        h1 {
+            color: #333;
+            margin: 0;
+        }
+    
+        nav {
+            background-color: #333;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        nav ul li {
+            display: inline;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        nav ul li a:hover {
+            text-decoration: overline underline;
+        }
+    
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+        }
+    
+        h2, p {
+            color: #333;
+        }
+    </style>
+
+</head>
+<body>
+
+    <header>
+        <h1>Cross-Site Scripting (XSS)</h1>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('csrf') }}">CSRF</a></li>
+            <li><a href="{{ url_for('xss') }}">XSS</a></li>
+            <li><a href="{{ url_for('sqli') }}">SQLi</a></li>
+            </ul>
+    </nav>
+
+    <div class="container" id="xss">
+
+        <img src="{{ url_for('static', filename='xss.png') }}" alt="XSS Image">
+
+        <h2>What is Cross-Site Scripting (XSS)?</h2>
+
+        <p>Cross-Site Scripting (XSS) is a type of security vulnerability that occurs when an attacker injects malicious scripts into web pages viewed by other users. These scripts can be executed in the context of a user's browser, leading to various security risks.</p>
+
+        <h2>Types of XSS:</h2>
+
+        <p>XSS vulnerabilities can be classified into three main types:</p>
+
+        <ul>
+            <li><strong>Stored XSS:</strong> The injected script is permanently stored on the target server and served to users whenever they access a particular page.</li>
+            <li><strong>Reflected XSS:</strong> The injected script is embedded in a URL, and the victim must click on a manipulated link to execute the malicious script.</li>
+            <li><strong>DOM-based XSS:</strong> The attack occurs in the Document Object Model (DOM) of a web page, and the malicious script manipulates the page's structure.</li>
+        </ul>
+
+        <h2>Impact of XSS:</h2>
+
+        <p>The consequences of XSS attacks include:</p>
+
+        <ul>
+            <li>Theft of sensitive user data (e.g., login credentials).</li>
+            <li>Session hijacking, allowing attackers to impersonate users.</li>
+            <li>Defacement of websites and manipulation of content.</li>
+            <li>Installation of malware on users' systems.</li>
+        </ul>
+
+        <h2>Preventing XSS:</h2>
+
+        <p>To protect against XSS, developers should:</p>
+
+        <ul>
+            <li>Validate and sanitize user input.</li>
+            <li>Use secure coding practices, such as context-aware output encoding.</li>
+            <li>Implement Content Security Policy (CSP) headers.</li>
+            <li>Audit and regularly update web application code.</li>
+        </ul>
+
+        <!-- Additional content about XSS goes here -->
+    </div>
+
+</body>
+</html>

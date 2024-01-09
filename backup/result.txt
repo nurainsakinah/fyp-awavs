@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Results</title>
+</head>
+<body>
+    <h1>Scan Results</h1>
+    <p>{{ summary|safe }}</p>
+
+    {% for result in results %}
+        <div>
+            <p>Link: {{ result.get('link', 'N/A') }}</p>
+            <p>XSS Result: {{ result.get('xss_result', 'N/A') }}</p>
+            <p>CSRF Result: {{ result.get('csrf_result', 'N/A') }}</p>
+            <p>SQLI Result: {{ result.get('sqli_result', 'N/A') }}</p>
+        </div>
+    {% endfor %}
+</body>
+</html>
