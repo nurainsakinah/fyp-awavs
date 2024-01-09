@@ -12,9 +12,9 @@ import matplotlib.pyplot as plt
 
 init(autoreset=True)
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///status_url.db'
-db = SQLAlchemy(app)
+application = Flask(__name__)
+application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///status_url.db'
+db = SQLAlchemy(application)
 
 class blacklist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -132,7 +132,7 @@ def create_category_bar_chart(category_distribution, bar_result_queue):
 
     bar_result_queue.put(base64_image)
 
-@app.route('/')
+@application.route('/')
 def index():
     # Assume you have functions get_totals(), get_category_distribution(), and others defined
 
@@ -159,7 +159,7 @@ def index():
                            top_blacklist_entries=top_blacklist_entries, top_whitelist_entries=top_whitelist_entries)
 
 
-@app.route('/scan', methods=['POST'])
+@application.route('/scan', methods=['POST'])
 def scan():
     target_url = request.form['url'].strip()
     if not target_url.endswith('/'):
@@ -232,22 +232,22 @@ def scan():
     
     return render_template('result.html', url=target_url, category=category, results=results, summary=summary, message=message)
 
-@app.route('/csrf')
+@application.route('/csrf')
 def csrf():
     # Your CSRF view logic goes here
     return render_template('csrf.html')
 
-@app.route('/xss')
+@application.route('/xss')
 def xss():
     # Your XSS view logic goes here
     return render_template('xss.html')
 
-@app.route('/sqli')
+@application.route('/sqli')
 def sqli():
     # Your SQLi view logic goes here
     return render_template('sqli.html')
 
 if __name__ == '__main__':
-    with app.app_context():
+    with application.app_context():
         db.create_all()
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    application.run(host='0.0.0.0', port=5000, debug=False)
