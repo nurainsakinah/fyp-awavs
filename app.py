@@ -9,17 +9,12 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import json
 matplotlib.use('Agg')  # Use Agg backend to avoid Tkinter-related issues
 import matplotlib.pyplot as plt
-import os
 
 init(autoreset=True)
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///status_url.db'
 db = SQLAlchemy(app)
-
-# Assuming your SQLite database file is named 'database.db'
-DATABASE_URL = "sqlite:///" + os.path.join(os.getcwd(), "status_url.db")
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 
 class blacklist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
