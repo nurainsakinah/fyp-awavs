@@ -94,6 +94,11 @@ import threading
 from queue import Queue
 
 def create_vulnerability_pie_chart(total_xss, total_csrf, total_sqli, pie_result_queue):
+    if total_xss == total_csrf == total_sqli == 0:
+        # No data in the database, handle accordingly (e.g., set default values, display a message)
+        default_values = [1, 1, 1]  # You can choose default values or customize based on your needs
+        total_xss, total_csrf, total_sqli = default_values
+
     labels = ['XSS', 'CSRF', 'SQLi']
     counts = [total_xss, total_csrf, total_sqli]
     colors = ['#a67d93', '#e79b93', '#ffe7b1']  # Customize the colors here
@@ -113,6 +118,11 @@ def create_vulnerability_pie_chart(total_xss, total_csrf, total_sqli, pie_result
     pie_result_queue.put(base64_image)
 
 def create_category_bar_chart(category_distribution, bar_result_queue):
+    if all(count == 0 for count in category_distribution.values()):
+        # No data in the database, handle accordingly (e.g., set default values, display a message)
+        default_values = {'Ecommerce': 1, 'Education': 1, 'Social Media': 1, 'Others': 1}  # Replace with your actual category names
+        category_distribution = default_values
+
     categories = list(category_distribution.keys())
     counts = list(category_distribution.values())
     colors = ['#b5b0aa', '#73bbdb', '#9c5465', '#355e73']
